@@ -3,6 +3,7 @@ package com.wiello_back.service;
 import com.wiello_back.component.security.JwtHelper;
 import com.wiello_back.controller.WielloUser.UserDTO;
 import com.wiello_back.entity.WielloUser;
+import com.wiello_back.exception.UserAlreadyExistsException;
 import com.wiello_back.repository.WielloUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -32,10 +33,13 @@ public class WielloUserService {
         throw new BadCredentialsException("Invalid login credentials!");
     }
 
-    public UUID createUser(UserDTO userDTO) {
+    public void createUser(UserDTO userDTO) {
+
+        if (wielloUserRepository.existsByUsername(userDTO.username())) {
+            throw new UserAlreadyExistsException();
+        }
         WielloUser wielloUser = new WielloUser();
         BeanUtils.copyProperties(userDTO, wielloUser);
         wielloUserRepository.save(wielloUser);
-        return wielloUser.getId();
     }
 }

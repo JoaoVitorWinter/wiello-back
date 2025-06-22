@@ -1,5 +1,6 @@
 package com.wiello_back.controller.WielloUser;
 
+import com.wiello_back.exception.UserAlreadyExistsException;
 import com.wiello_back.service.WielloUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -20,11 +21,10 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class WielloUserController {
     private WielloUserService wielloUserService;
-    private Validator validator;
 
     @PreAuthorize("permitAll()")
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<String> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             return ResponseEntity.status(200).body(wielloUserService.login(loginDTO.username(), loginDTO.password()));
         } catch (AuthenticationException exception) {
@@ -42,13 +42,15 @@ public class WielloUserController {
 
     @PreAuthorize("permitAll()")
     @PostMapping
-    public ResponseEntity<UUID> createUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
         try {
-            return ResponseEntity.status(201).body(wielloUserService.createUser(userDTO));
+            wielloUserService.createUser(userDTO);
+            return ResponseEntity.status(201).build();
+        } catch(UserAlreadyExistsException exception) {
+            return ResponseEntity.status(400).body(exception.getMessage());
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(400).build();
         } catch (Exception exception) {
-            exception.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }

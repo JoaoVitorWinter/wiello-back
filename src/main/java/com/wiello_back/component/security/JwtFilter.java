@@ -1,5 +1,6 @@
 package com.wiello_back.component.security;
 
+import com.wiello_back.entity.WielloUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +33,8 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authentication);
             SecurityContextHolder.setContext(securityContext);
+            String newToken = jwtHelper.createToken((WielloUser) authentication.getPrincipal());
+            response.addHeader("revalidatedtoken", newToken);
         } catch (Exception exception) {
             if (!isPublicEndpoint(uri, method)) {
                 response.setStatus(401);

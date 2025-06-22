@@ -1,4 +1,10 @@
 package com.wiello_back.controller.WielloUser;
 
-public record LoginDTO(String username, String password) {
+import jakarta.validation.constraints.NotEmpty;
+
+public record LoginDTO(
+        @NotEmpty
+        String username,
+        @NotEmpty
+        String password) {
 }

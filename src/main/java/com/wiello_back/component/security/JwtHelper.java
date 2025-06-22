@@ -23,7 +23,7 @@ public class JwtHelper {
 
     public String createToken(WielloUser wielloUser) {
         Instant instantIssuedAt = Instant.now();
-        Instant instantExpireAt = instantIssuedAt.plus(1, ChronoUnit.HOURS);
+        Instant instantExpireAt = instantIssuedAt.plus(10, ChronoUnit.MINUTES);
         String[] authorities = wielloUser.getAuthorities().stream()
                 .map(WielloUserRole::getAuthority).toArray(String[]::new);
         return JWT.create()

@@ -1,5 +1,6 @@
 package com.wiello_back.entity;
 
+import com.wiello_back.controller.Task.TaskSimpleGetDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,4 +26,8 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "column_id", nullable = false)
     private ProjectColumn column;
+
+    public TaskSimpleGetDTO toTaskSimpleGetDTO() {
+        return new TaskSimpleGetDTO(this.getId(), this.getTitle());
+    }
 }
