@@ -5,8 +5,12 @@ import com.wiello_back.controller.Project.ProjectPatchDTO;
 import com.wiello_back.controller.Project.ProjectPostDTO;
 import com.wiello_back.controller.Project.ProjectSimpleGetDTO;
 import com.wiello_back.entity.Project;
+import com.wiello_back.entity.ProjectColumn;
 import com.wiello_back.entity.WielloUser;
+import com.wiello_back.repository.ProjectColumnRepository;
 import com.wiello_back.repository.ProjectRepository;
+import jakarta.persistence.Transient;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.BeanUtils;
@@ -21,14 +25,20 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProjectService {
     private ProjectRepository projectRepository;
+    private ProjectColumnService projectColumnService;
 
+    @Transactional
     public void createProject(ProjectPostDTO projectPostDTO, WielloUser wielloUser) {
         Project project = new Project();
         BeanUtils.copyProperties(projectPostDTO, project);
         project.setCreationDate(new Date());
         project.setOwner(wielloUser);
-        System.out.println(new Date());
         projectRepository.save(project);
+        getInitialColumns().forEach((projectColumn) -> projectColumnService.createProjectColumn(project.getId(), projectColumn.getName(), wielloUser));
+    }
+
+    public List<ProjectColumn>  getInitialColumns() {
+        return List.of(new ProjectColumn("To do"), new ProjectColumn("Doing"), new ProjectColumn("Done"));
     }
 
     public List<ProjectSimpleGetDTO> getAllProjects(WielloUser wielloUser) {
@@ -44,9 +54,8 @@ public class ProjectService {
         return project.toProjectFullGetDTO();
     }
 
-    public void editProjectName(ProjectPatchDTO projectPatchDTO, WielloUser wielloUser) {
-        UUID id = UUID.fromString(projectPatchDTO.id());
-        Project project = projectRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(id, "project"));
+    public void editProjectName(UUID projectID, ProjectPatchDTO projectPatchDTO, WielloUser wielloUser) {
+        Project project = projectRepository.findById(projectID).orElseThrow(() -> new ObjectNotFoundException(projectID , "project"));
         if (!project.getOwner().equals(wielloUser)) {
             throw new AccessDeniedException("You do not have access to this project");
         }

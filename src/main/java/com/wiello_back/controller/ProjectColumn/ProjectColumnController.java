@@ -1,6 +1,8 @@
-package com.wiello_back.controller.Project;
+package com.wiello_back.controller.ProjectColumn;
 
+import com.wiello_back.controller.Project.ProjectPostDTO;
 import com.wiello_back.entity.WielloUser;
+import com.wiello_back.service.ProjectColumnService;
 import com.wiello_back.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -15,29 +17,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/project")
+@RequestMapping("/column")
 @AllArgsConstructor
-public class ProjectController {
-    private ProjectService projectService;
+public class ProjectColumnController {
+    private ProjectColumnService projectColumnService;
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping
-    public ResponseEntity<?> createProject(@Valid @RequestBody ProjectPostDTO projectPostDTO, @AuthenticationPrincipal WielloUser wielloUser) {
+    @PostMapping("/{projectID}")
+    public ResponseEntity<?> createProjectColumn(@PathVariable UUID projectID, @Valid @RequestBody ProjectColumnPostDTO projectColumnPostDTO, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            projectService.createProject(projectPostDTO, wielloUser);
+            projectColumnService.createProjectColumn(projectID, projectColumnPostDTO.name(), wielloUser);
             return ResponseEntity.status(201).build();
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(400).build();
+        } catch (AccessDeniedException exception) {
+            return ResponseEntity.status(403).build();
+        } catch (ObjectNotFoundException exception) {
+            return ResponseEntity.status(404).build();
         } catch (Exception exception) {
             return ResponseEntity.status(500).build();
         }
     }
-    
+
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{projectID}")
-    public ResponseEntity<?> editProjectName(@PathVariable UUID projectID, @Valid @RequestBody ProjectPatchDTO projectPatchDTO, @AuthenticationPrincipal WielloUser wielloUser) {
+    @PatchMapping("/{projectColumnID}")
+    public ResponseEntity<?> editProjectColumnName(@PathVariable UUID projectColumnID, @Valid @RequestBody ProjectColumnPatchDTO projectColumnPatchDTO, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            projectService.editProjectName(projectID, projectPatchDTO, wielloUser);
+            projectColumnService.editProjectColumnName(projectColumnID, projectColumnPatchDTO, wielloUser);
             return ResponseEntity.status(200).build();
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(400).build();
@@ -51,34 +57,10 @@ public class ProjectController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping
-    public ResponseEntity<?> getAllProjects(@AuthenticationPrincipal WielloUser wielloUser) {
+    @DeleteMapping("/{projectColumnID}")
+    public ResponseEntity<?> deleteProjectColumn(@PathVariable UUID projectColumnID, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            return ResponseEntity.status(200).body(projectService.getAllProjects(wielloUser));
-        } catch (Exception exception) {
-            return ResponseEntity.status(500).build();
-        }
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/{projectID}")
-    public ResponseEntity<?> getProject(@PathVariable UUID projectID, @AuthenticationPrincipal WielloUser wielloUser) {
-        try {
-            return ResponseEntity.status(200).body(projectService.getProject(projectID, wielloUser));
-        } catch (AccessDeniedException exception) {
-            return ResponseEntity.status(403).build();
-        } catch (ObjectNotFoundException exception) {
-            return ResponseEntity.status(404).build();
-        } catch (Exception exception) {
-            return ResponseEntity.status(500).build();
-        }
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{projectID}")
-    public ResponseEntity<?> deleteProject(@PathVariable UUID projectID, @AuthenticationPrincipal WielloUser wielloUser) {
-        try {
-            projectService.deleteProject(projectID, wielloUser);
+            projectColumnService.deleteProjectColumn(projectColumnID, wielloUser);
             return ResponseEntity.status(200).build();
         } catch (AccessDeniedException exception) {
             return ResponseEntity.status(403).build();

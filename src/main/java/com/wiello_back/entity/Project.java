@@ -29,7 +29,7 @@ public class Project {
     private WielloUser owner;
     @OneToMany(orphanRemoval = true, mappedBy = "project", fetch = FetchType.LAZY)
     private List<Task> tasks;
-    @OneToMany(orphanRemoval = true, mappedBy = "project", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true, mappedBy = "project", fetch = FetchType.LAZY)
     private List<ProjectColumn> columns;
 
     public ProjectSimpleGetDTO toProjectSimpleGetDTO() {

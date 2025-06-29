@@ -1,9 +1,13 @@
-package com.wiello_back.controller.Project;
+package com.wiello_back.controller.Task;
 
+import com.wiello_back.controller.Project.ProjectPatchDTO;
+import com.wiello_back.controller.Project.ProjectPostDTO;
 import com.wiello_back.entity.WielloUser;
 import com.wiello_back.service.ProjectService;
+import com.wiello_back.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -15,29 +19,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/project")
+@RequestMapping("/task")
 @AllArgsConstructor
-public class ProjectController {
+public class TaskController {
+    private TaskService taskService;
     private ProjectService projectService;
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping
-    public ResponseEntity<?> createProject(@Valid @RequestBody ProjectPostDTO projectPostDTO, @AuthenticationPrincipal WielloUser wielloUser) {
+    @PostMapping("/{projectColumnID}")
+    public ResponseEntity<?> createTask(@PathVariable UUID projectColumnID, @Valid @RequestBody TaskPostDTO taskPostDTO, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            projectService.createProject(projectPostDTO, wielloUser);
+            taskService.createTask(projectColumnID, taskPostDTO, wielloUser);
             return ResponseEntity.status(201).build();
-        } catch (DataIntegrityViolationException exception) {
+        } catch (DataIntegrityViolationException | ObjectNotFoundException exception) {
             return ResponseEntity.status(400).build();
         } catch (Exception exception) {
             return ResponseEntity.status(500).build();
         }
     }
-    
+
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{projectID}")
-    public ResponseEntity<?> editProjectName(@PathVariable UUID projectID, @Valid @RequestBody ProjectPatchDTO projectPatchDTO, @AuthenticationPrincipal WielloUser wielloUser) {
+    @PutMapping("/{taskID}")
+    public ResponseEntity<?> editTask(@PathVariable UUID taskID, @Valid @RequestBody TaskPutDTO taskPutDTO, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            projectService.editProjectName(projectID, projectPatchDTO, wielloUser);
+            taskService.editTask(taskID, taskPutDTO, wielloUser);
             return ResponseEntity.status(200).build();
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(400).build();
@@ -51,20 +56,13 @@ public class ProjectController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping
-    public ResponseEntity<?> getAllProjects(@AuthenticationPrincipal WielloUser wielloUser) {
+    @PatchMapping("/{taskID}/{projectColumnID}")
+    public ResponseEntity<?> editTaskColumn(@PathVariable UUID taskID, @PathVariable UUID projectColumnID, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            return ResponseEntity.status(200).body(projectService.getAllProjects(wielloUser));
-        } catch (Exception exception) {
-            return ResponseEntity.status(500).build();
-        }
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/{projectID}")
-    public ResponseEntity<?> getProject(@PathVariable UUID projectID, @AuthenticationPrincipal WielloUser wielloUser) {
-        try {
-            return ResponseEntity.status(200).body(projectService.getProject(projectID, wielloUser));
+            taskService.editTaskColumn(taskID, projectColumnID, wielloUser);
+            return ResponseEntity.status(200).build();
+        } catch (DataIntegrityViolationException | BadRequestException exception) {
+            return ResponseEntity.status(400).build();
         } catch (AccessDeniedException exception) {
             return ResponseEntity.status(403).build();
         } catch (ObjectNotFoundException exception) {
@@ -75,10 +73,24 @@ public class ProjectController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{projectID}")
-    public ResponseEntity<?> deleteProject(@PathVariable UUID projectID, @AuthenticationPrincipal WielloUser wielloUser) {
+    @GetMapping("/{taskID}")
+    public ResponseEntity<?> getTask(@PathVariable UUID taskID, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            projectService.deleteProject(projectID, wielloUser);
+            return ResponseEntity.status(200).body(taskService.getTask(taskID, wielloUser));
+        } catch (AccessDeniedException exception) {
+            return ResponseEntity.status(403).build();
+        } catch (ObjectNotFoundException exception) {
+            return ResponseEntity.status(404).build();
+        } catch (Exception exception) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{taskID}")
+    public ResponseEntity<?> deleteTask(@PathVariable UUID taskID, @AuthenticationPrincipal WielloUser wielloUser) {
+        try {
+            taskService.deleteTask(taskID, wielloUser);
             return ResponseEntity.status(200).build();
         } catch (AccessDeniedException exception) {
             return ResponseEntity.status(403).build();

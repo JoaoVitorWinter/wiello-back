@@ -1,5 +1,6 @@
 package com.wiello_back.entity;
 
+import com.wiello_back.controller.Task.TaskFullGetDTO;
 import com.wiello_back.controller.Task.TaskSimpleGetDTO;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,5 +30,9 @@ public class Task {
 
     public TaskSimpleGetDTO toTaskSimpleGetDTO() {
         return new TaskSimpleGetDTO(this.getId(), this.getTitle());
+    }
+
+    public TaskFullGetDTO toTaskFullGetDTO() {
+        return new TaskFullGetDTO(this.getId(), this.getTitle(), this.getDescription(), this.getDeadline(), this.getCreationDate());
     }
 }
