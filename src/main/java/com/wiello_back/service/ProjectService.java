@@ -1,15 +1,13 @@
 package com.wiello_back.service;
 
 import com.wiello_back.controller.Project.ProjectFullGetDTO;
-import com.wiello_back.controller.Project.ProjectPatchDTO;
+import com.wiello_back.controller.Project.ProjectPutDTO;
 import com.wiello_back.controller.Project.ProjectPostDTO;
 import com.wiello_back.controller.Project.ProjectSimpleGetDTO;
 import com.wiello_back.entity.Project;
 import com.wiello_back.entity.ProjectColumn;
 import com.wiello_back.entity.WielloUser;
-import com.wiello_back.repository.ProjectColumnRepository;
 import com.wiello_back.repository.ProjectRepository;
-import jakarta.persistence.Transient;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
@@ -54,12 +52,12 @@ public class ProjectService {
         return project.toProjectFullGetDTO();
     }
 
-    public void editProjectName(UUID projectID, ProjectPatchDTO projectPatchDTO, WielloUser wielloUser) {
+    public void editProjectName(UUID projectID, ProjectPutDTO projectPutDTO, WielloUser wielloUser) {
         Project project = projectRepository.findById(projectID).orElseThrow(() -> new ObjectNotFoundException(projectID , "project"));
         if (!project.getOwner().equals(wielloUser)) {
             throw new AccessDeniedException("You do not have access to this project");
         }
-        project.setName(projectPatchDTO.name());
+        project.setName(projectPutDTO.name());
         projectRepository.save(project);
     }
 

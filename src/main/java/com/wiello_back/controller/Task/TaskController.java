@@ -1,7 +1,5 @@
 package com.wiello_back.controller.Task;
 
-import com.wiello_back.controller.Project.ProjectPatchDTO;
-import com.wiello_back.controller.Project.ProjectPostDTO;
 import com.wiello_back.entity.WielloUser;
 import com.wiello_back.service.ProjectService;
 import com.wiello_back.service.TaskService;

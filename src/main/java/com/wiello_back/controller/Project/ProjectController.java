@@ -34,10 +34,10 @@ public class ProjectController {
     }
     
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{projectID}")
-    public ResponseEntity<?> editProjectName(@PathVariable UUID projectID, @Valid @RequestBody ProjectPatchDTO projectPatchDTO, @AuthenticationPrincipal WielloUser wielloUser) {
+    @PutMapping("/{projectID}")
+    public ResponseEntity<?> editProjectName(@PathVariable UUID projectID, @Valid @RequestBody ProjectPutDTO projectPutDTO, @AuthenticationPrincipal WielloUser wielloUser) {
         try {
-            projectService.editProjectName(projectID, projectPatchDTO, wielloUser);
+            projectService.editProjectName(projectID, projectPutDTO, wielloUser);
             return ResponseEntity.status(200).build();
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(400).build();
