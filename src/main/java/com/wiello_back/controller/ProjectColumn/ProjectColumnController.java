@@ -4,6 +4,10 @@ import com.wiello_back.controller.Project.ProjectPostDTO;
 import com.wiello_back.entity.WielloUser;
 import com.wiello_back.service.ProjectColumnService;
 import com.wiello_back.service.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
@@ -19,9 +23,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/column")
 @AllArgsConstructor
+@Tag(name = "Coluna", description = "Gerenciamento de colunas de projeto")
 public class ProjectColumnController {
     private ProjectColumnService projectColumnService;
 
+    @Operation(summary = "Criar coluna", description = "Cria uma nova coluna no projeto informado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Coluna criada"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{projectID}")
     public ResponseEntity<?> createProjectColumn(@PathVariable UUID projectID, @Valid @RequestBody ProjectColumnPostDTO projectColumnPostDTO, @AuthenticationPrincipal WielloUser wielloUser) {
@@ -39,6 +52,14 @@ public class ProjectColumnController {
         }
     }
 
+    @Operation(summary = "Editar nome da coluna")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Coluna atualizada"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão"),
+            @ApiResponse(responseCode = "404", description = "Coluna não encontrada"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{projectColumnID}")
     public ResponseEntity<?> editProjectColumnName(@PathVariable UUID projectColumnID, @Valid @RequestBody ProjectColumnPatchDTO projectColumnPatchDTO, @AuthenticationPrincipal WielloUser wielloUser) {
@@ -56,6 +77,13 @@ public class ProjectColumnController {
         }
     }
 
+    @Operation(summary = "Deletar coluna")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Coluna deletada"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão"),
+            @ApiResponse(responseCode = "404", description = "Coluna não encontrada"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{projectColumnID}")
     public ResponseEntity<?> deleteProjectColumn(@PathVariable UUID projectColumnID, @AuthenticationPrincipal WielloUser wielloUser) {

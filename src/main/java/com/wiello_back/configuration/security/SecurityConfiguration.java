@@ -44,7 +44,9 @@ public class SecurityConfiguration {
         config.sessionManagement(httpSecuritySessionManagementConfigurer ->
                 httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         config.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        config.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry.anyRequest().permitAll());
+        config.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                .anyRequest().permitAll());
         return config.build();
     }
 
