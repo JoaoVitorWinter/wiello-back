@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String newToken = jwtHelper.createToken((WielloUser) authentication.getPrincipal());
             response.addHeader("revalidatedtoken", newToken);
         } catch (Exception exception) {
-            if (!isPublicEndpoint(uri, method)) {
+            if (!isPublicEndpoint(uri, method) && !isSwaggerEndpoint(uri)) {
                 response.setStatus(401);
                 return;
             }
@@ -47,5 +47,10 @@ public class JwtFilter extends OncePerRequestFilter {
     private boolean isPublicEndpoint(String uri, String method) {
         return uri.equals("/user/login") && method.equals("POST") ||
             uri.equals("/user") && method.equals("POST");
+    }
+
+    private boolean isSwaggerEndpoint(String uri) {
+        return uri.startsWith("/swagger-ui") ||
+                uri.startsWith("/v3/api-docs");
     }
 }
